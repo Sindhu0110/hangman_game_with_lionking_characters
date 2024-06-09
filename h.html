@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: black;
+            color: white;
+        }
+        .game-container {
+            margin-top: 50px;
+        }
+        .letter {
+            font-size: 2em;
+            margin: 0 5px;
+        }
+        .guessed-letter {
+            font-size: 1.5em;
+            margin: 0 5px;
+        }
+        #guess-input {
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+        #guess-button {
+            background-color: #555;
+            border: none;
+        }
+        #guess-button:hover {
+            background-color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container game-container text-center">
+        <h1>Hangman Game(lionking characters)</h1>
+        <p id="lives"></p>
+        <div id="word-container"></div>
+        <div class="mt-4">
+            <input type="text" id="guess-input" maxlength="1" class="form-control d-inline-block w-25" placeholder="Enter a letter">
+            <button id="guess-button" class="btn btn-primary">Guess</button>
+        </div>
+        <div class="mt-4" id="message"></div>
+    </div>
+
+    <script>
+        const words = ["simba","mufasa","sarafina","sarabi","zazu","ed","banzai","shenzi","timon","nala","pumbaa","rafiki","scar"];
+        const answer = words[Math.floor(Math.random() * words.length)];
+        let lives = 10;
+        let foundCharIndexes = [];
+
+        document.getElementById('lives').textContent = `You currently have: ${lives} lives.`;
+
+        function updateWordDisplay() {
+            const wordContainer = document.getElementById('word-container');
+            wordContainer.innerHTML = '';
+            let foundCount = 0;
+            for (let i = 0; i < answer.length; i++) {
+                if (foundCharIndexes.includes(i)) {
+                    wordContainer.innerHTML += `<span class="letter">${answer[i]}</span>`;
+                    foundCount++;
+                } else {
+                    wordContainer.innerHTML += `<span class="letter">_</span>`;
+                }
+            }
+            return foundCount;
+        }
+
+        function checkGameStatus(foundCount) {
+            if (foundCount === answer.length) {
+                document.getElementById('message').textContent = "Congrats, you found the word.Simba is proud of you!";
+                document.getElementById('guess-button').disabled = true;
+            } else if (lives <= 0) {
+                document.getElementById('message').textContent = "Oh no, you failed :( (hakuna-matata)! The word was " + answer;
+                document.getElementById('guess-button').disabled = true;
+            }
+        }
+
+        document.getElementById('guess-button').addEventListener('click', () => {
+            const userChoice = document.getElementById('guess-input').value.toLowerCase();
+            document.getElementById('guess-input').value = '';
+            if (userChoice.length !== 1 || !/[a-z]/.test(userChoice)) {
+                alert("Please enter a valid letter.");
+                return;
+            }
+
+            let found = false;
+            for (let i = 0; i < answer.length; i++) {
+                if (userChoice === answer[i] && !foundCharIndexes.includes(i)) {
+                    found = true;
+                    foundCharIndexes.push(i);
+                }
+            }
+
+            if (!found) lives--;
+
+            document.getElementById('lives').textContent = `You currently have: ${lives} lives.`;
+            const foundCount = updateWordDisplay();
+            checkGameStatus(foundCount);
+        });
+
+        updateWordDisplay();
+    </script>
+</body>
+</html>
